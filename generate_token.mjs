@@ -10,8 +10,19 @@ const SCOPES = [
 ];
 
 async function main() {
-  const content = fs.readFileSync('credentials.json.json', 'utf8');
-  const credentials = JSON.parse(content);
+  let credentials;
+  
+  if (process.env.GOOGLE_CREDENTIALS) {
+    credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+  } else {
+    try {
+      const content = fs.readFileSync('credentials.json.json', 'utf8');
+      credentials = JSON.parse(content);
+    } catch (error) {
+      console.error('Error reading credentials: You must set the GOOGLE_CREDENTIALS environment variable or provide a credentials.json.json file.');
+      process.exit(1);
+    }
+  }
   
   const {client_secret, client_id, redirect_uris} = credentials.installed || credentials.web;
   
