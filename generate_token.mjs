@@ -61,9 +61,9 @@ async function main() {
           
           if (token.refresh_token) {
             console.log('\n--- IMPORTANT ---');
-            console.log('Your GOOGLE_REFRESH_TOKEN is:');
-            console.log(token.refresh_token);
-            console.log('\nAdd this to your .env file!');
+            console.log('Your GOOGLE_TOKEN is:');
+            console.log(JSON.stringify(token));
+            console.log('\nAdd this entire JSON string as the GOOGLE_TOKEN environment variable in your Railway dashboard!');
           } else {
             console.log('\nNo refresh token received. You might need to remove the app from your Google account and try again.');
           }

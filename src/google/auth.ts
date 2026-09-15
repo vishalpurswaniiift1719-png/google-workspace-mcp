@@ -8,21 +8,29 @@ dotenv.config();
 export function getGoogleAuth() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  const tokenString = process.env.GOOGLE_TOKEN;
 
-  if (!clientId || !clientSecret || !refreshToken) {
+  if (!clientId || !clientSecret || !tokenString) {
     throw new McpError(
       'AUTHENTICATION_ERROR',
-      'Missing Google OAuth credentials in environment variables. Ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN are set.'
+      'Missing Google OAuth credentials in environment variables. Ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_TOKEN are set.'
+    );
+  }
+
+  let tokenData;
+  try {
+    tokenData = JSON.parse(tokenString);
+  } catch (error) {
+    throw new McpError(
+      'AUTHENTICATION_ERROR',
+      'GOOGLE_TOKEN is not valid JSON.'
     );
   }
 
   const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
   
-  // Set the refresh token to allow the client to automatically fetch new access tokens
-  oauth2Client.setCredentials({
-    refresh_token: refreshToken
-  });
+  // Set the full credentials object
+  oauth2Client.setCredentials(tokenData);
 
   return oauth2Client;
 }
