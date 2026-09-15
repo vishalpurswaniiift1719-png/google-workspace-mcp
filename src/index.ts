@@ -16,12 +16,23 @@ async function main() {
   let transport: SSEServerTransport | null = null;
 
   app.get("/sse", async (req, res) => {
+    const token = req.query.token;
+    if (process.env.MCP_AUTH_TOKEN && token !== process.env.MCP_AUTH_TOKEN) {
+      console.warn("Unauthorized SSE connection attempt");
+      return res.status(401).send("Unauthorized");
+    }
     console.log("New SSE connection established");
-    transport = new SSEServerTransport("/messages", res);
+    transport = new SSEServerTransport(`/messages?token=${token || ''}`, res);
     await server.connect(transport);
   });
 
   app.post("/messages", async (req, res) => {
+    const token = req.query.token;
+    if (process.env.MCP_AUTH_TOKEN && token !== process.env.MCP_AUTH_TOKEN) {
+      console.warn("Unauthorized messages POST attempt");
+      return res.status(401).send("Unauthorized");
+    }
+    
     if (transport) {
       await transport.handlePostMessage(req, res);
     } else {
